@@ -1,0 +1,20 @@
+{
+  "name": "server",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "prisma": "6.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "@repo/types": "*",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
