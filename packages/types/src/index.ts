@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export enum HttpStatusCode {
   // 2xx Success
   OK = 200,
@@ -27,3 +29,12 @@ export enum HttpStatusCode {
   GATEWAY_TIMEOUT = 504,
 }
 
+
+// store types/interfaces
+
+export const StoreLaunchI = z.object({
+  name: z.string().min(4),
+  slug: z.string().min(4),
+  description: z.string(),
+  imageUrl: z.string().optional()
+})

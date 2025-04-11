@@ -12,9 +12,11 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@clerk/express": "^1.4.4",
     "@prisma/client": "^6.5.0",
     "@repo/types": "*",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2"
   }
 }

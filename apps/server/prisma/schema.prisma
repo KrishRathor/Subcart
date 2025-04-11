@@ -14,100 +14,88 @@ datasource db {
 }
 
 model User {
-  id                String              @id @default(uuid())
-  name              String
-  email             String              @unique
-  password          String? // Hashed password
-  avatarUrl         String? // Optional profile picture
-  plan              Plan                @default(FREE) // Subscription plan
-  podcasts          Podcast[]
-  podcastSubscriber PodcastSubscriber[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  EpisodeAnalytics  EpisodeAnalytics[]
-  Payment           Payment[]
-}
-
-enum Plan {
-  FREE
-  PRO
-  ENTERPRISE
-}
-
-model Podcast {
-  id            String              @id @default(uuid())
-  userId        String
-  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title         String
-  description   String?
-  coverImageUrl String?
-  rssFeedUrl    String              @unique
-  episodes      Episode[]
-  subscribers   PodcastSubscriber[]
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-}
-
-model Episode {
-  id          String             @id @default(uuid())
-  podcastId   String
-  podcast     Podcast            @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  audioUrl    String // S3 URL or CDN URL
-  duration    Int // In seconds
-  chapters    Chapter[]
-  publishedAt DateTime? // Null if draft
-  analytics   EpisodeAnalytics[]
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-}
-
-model Chapter {
   id        String   @id @default(uuid())
-  episodeId String
-  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  timestamp Int // Time in seconds
-  title     String
+  name      String
+  email     String   @unique
+  password  String? // Hashed password
+  avatarUrl String? // Optional profile picture
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Store     Store[]
 }
 
-model PodcastSubscriber {
-  id        String   @id @default(uuid())
-  podcastId String
-  podcast   Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+model Store {
+  id           String     @id @default(cuid())
+  name         String // Name of the online store
+  subdomain    String?    @unique
+  customDomain String?    @unique
+  description  String
+  ownerId      String
+  owner        User       @relation(fields: [ownerId], references: [id], onDelete: Cascade) // Relation to the User model
+  products     Product[]
+  orders       Order[]
+  customers    Customer[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal     @db.Decimal(10, 2)
+  sku           String?     @unique
+  stockQuantity Int         @default(0)
+  storeId       String
+  store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orders    Order[]
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, storeId]) // A customer email should be unique within a specific store
 }
 
-model EpisodeAnalytics {
-  id        String   @id @default(uuid())
-  episodeId String
-  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull) // Optional for anonymous listeners
-  ipAddress String?
-  device    String? // e.g., "iPhone", "Windows", "Mac"
-  country   String? // Extract from IP geolocation
-  timestamp DateTime @default(now())
-}
-
-model Payment {
-  id              String        @id @default(uuid())
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount          Decimal
-  currency        String        @default("USD")
-  status          PaymentStatus
-  stripeSessionId String? // Store Stripe Checkout session ID
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-}
-
-enum PaymentStatus {
+enum OrderStatus {
   PENDING
-  SUCCESS
-  FAILED
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  status          OrderStatus @default(PENDING)
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  shippingAddress String?
+  billingAddress  String?
+  storeId         String
+  store           Store       @relation(fields: [storeId], references: [id], onDelete: Restrict) // Relation to the Store model
+  customerId      String
+  customer        Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict) // Relation to the Customer model
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  quantity        Int
+  priceAtPurchase Decimal @db.Decimal(10, 2) // Price of the product at the time of purchase (important if product prices change)
+  orderId         String
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade) // Relation to the Order model
+  productId       String
+  product         Product @relation(fields: [productId], references: [id], onDelete: Restrict) // Relation to the Product model
 }
