@@ -8,6 +8,10 @@
     "@types/express": "^5.0.0",
     "prisma": "6.5.0"
   },
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
