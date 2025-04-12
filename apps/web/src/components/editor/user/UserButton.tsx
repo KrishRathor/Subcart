@@ -1,25 +1,21 @@
-// src/components/editor/user/UserButton.tsx
 import { useNode } from "@craftjs/core";
-import React from "react";
-import { SettingsInput } from "../SettingsInput"; // Simple input component (create below)
-import { SettingsSelect } from "../SettingsSelect"; // Simple select component (create below)
+import { SettingsInput } from "../SettingsInput"; 
+import { SettingsSelect } from "../SettingsSelect";
 
-// Define props for the button component
 interface UserButtonProps {
   text?: string;
   alignment?: 'left' | 'center' | 'right';
   background?: string;
   color?: string;
-  paddingX?: number; // Example: horizontal padding
-  paddingY?: number; // Example: vertical padding
-  margin?: number;   // Example: margin around button
+  paddingX?: number;
+  paddingY?: number;
+  margin?: number; 
 }
 
-// The Button component users interact with
 export const UserButton = ({
   text = "Button Text",
   alignment = 'left',
-  background = "#6D28D9", // Default purple
+  background = "#6D28D9",
   color = "#ffffff",
   paddingX = 15,
   paddingY = 10,
@@ -120,7 +116,7 @@ const UserButtonSettings = () => {
 };
 
 UserButton.craft = {
-  props: { // Default props when dragged in
+  props: {
     text: "Click Me",
     alignment: "left",
     background: "#6D28D9",

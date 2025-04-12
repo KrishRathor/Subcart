@@ -1,19 +1,18 @@
-// src/components/edit/Toolbox.tsx
 import React, { useState } from 'react';
 import { Element, useEditor } from "@craftjs/core";
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; // Use solid icons for toggle
 
-// Import User Components
 import { UserButton } from "./user/UserButton";
 import { UserText } from "./user/UserText";
 import { UserContainer } from "./user/UserContainer";
 import { UserImage } from "./user/UserImage";
+import { UserColumn } from './user/UserColumn';
 
-// Define Toolbox Categories
 const categories = [
   {
     id: 'layout', name: 'Layout', tools: [
-      { id: 'container', name: 'Container', component: <Element is={UserContainer} canvas /> }, // Container needs canvas prop
+      { id: 'container', name: 'Container', component: <Element is={UserContainer} canvas /> },
+      { id: 'lay', name: 'Lay', component: <Element is={UserColumn} canvas /> }
     ]
   },
   {
@@ -23,10 +22,8 @@ const categories = [
       { id: 'image', name: 'Image', component: <Element is={UserImage} /> },
     ]
   },
-  // Add more categories like "E-commerce", "Forms" later
 ];
 
-// Individual Draggable Tool Item
 const ToolItem = ({ children, elementToCreate }: { children: React.ReactNode, elementToCreate: React.ReactElement }) => {
   const { connectors } = useEditor();
   return (
@@ -41,11 +38,10 @@ const ToolItem = ({ children, elementToCreate }: { children: React.ReactNode, el
 
 
 export const ToolBox = () => {
-  // State to track which accordion section is open
-  const [openSection, setOpenSection] = useState<string | null>('basic'); // Default open basic
+  const [openSection, setOpenSection] = useState<string | null>('basic');
 
   const toggleSection = (id: string) => {
-    setOpenSection(prev => (prev === id ? null : id)); // Toggle open/close
+    setOpenSection(prev => (prev === id ? null : id));
   };
 
   return (
@@ -70,13 +66,11 @@ export const ToolBox = () => {
                   <ChevronRightIcon className="w-4 h-4 text-gray-500" />
                 )}
               </button>
-
-              {/* Conditionally Rendered Tools with Transition */}
               <div
                 className={`pl-3 pr-1 pb-1 transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-96 opacity-100 pt-2' : 'max-h-0 opacity-0'
                   }`}
               >
-                {isOpen && ( // Render content only when potentially visible for better performance
+                {isOpen && (
                   <div className="space-y-2">
                     {category.tools.map(tool => (
                       <ToolItem key={tool.id} elementToCreate={tool.component}>
