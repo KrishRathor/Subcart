@@ -7,6 +7,7 @@ import { ToolBox } from "../components/editor/ToolBox";
 import { SettingsPanel } from "../components/editor/SettingPanel";
 import { MinimalTest } from "../components/editor/user/MinimalTest";
 import { UserColumn } from "../components/editor/user/UserColumn";
+import { UserBgImage } from "../components/editor/user/UserBgImage";
 
 export const EditPage = () => {
 
@@ -19,7 +20,8 @@ export const EditPage = () => {
           UserButton,
           UserImage,
           MinimalTest,
-          'UserColumn': UserColumn
+          'UserColumn': UserColumn,
+          UserBgImage
         }}
       >
         <div className="w-60 flex-shrink-0 h-screen overflow-y-auto p-4 border-r border-gray-800 bg-gray-900">

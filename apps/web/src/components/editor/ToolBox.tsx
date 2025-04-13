@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Component, useState } from 'react';
 import { Element, useEditor } from "@craftjs/core";
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; // Use solid icons for toggle
 
@@ -7,12 +7,14 @@ import { UserText } from "./user/UserText";
 import { Container } from "./user/UserContainer";
 import { UserImage } from "./user/UserImage";
 import { UserColumn } from './user/UserColumn';
+import { UserBgImage } from './user/UserBgImage';
 
 const categories = [
   {
     id: 'layout', name: 'Layout', tools: [
       { id: 'container', name: 'Container', component: <Element is={Container} canvas /> },
-      { id: 'lay', name: 'Lay', component: <Element is={UserColumn} canvas /> }
+      { id: 'lay', name: 'Lay', component: <Element is={UserColumn} canvas /> },
+      { id: 'bgimage', name: 'Background Image', component: <Element is={UserBgImage} canvas /> }
     ]
   },
   {
