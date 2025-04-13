@@ -6,12 +6,22 @@ export const SettingsPanel = () => {
     const selectedIds = state.events.selected;
     const currentNodeId = selectedIds.size > 0 ? Array.from(selectedIds)[0] : null;
     const node = currentNodeId ? state.nodes[currentNodeId] : null;
+    if (node) {
+      console.log(`Selected Node (${currentNodeId}) Data:`, node);
+      console.log(`   - node.data.name:`, node.data.name);
+      console.log(`   - node.data.displayName:`, node.data.displayName);
+      console.log(`   - node.data.custom?.displayName:`, node.data.custom?.displayName);
+      console.log(`   - node.related exists?`, !!node.related); // Does related object exist?
+      console.log(`   - node.related?.settings exists?`, !!node.related?.settings); // Does settings func exist?
+    }
+
     return {
       selectedNodeId: currentNodeId,
       settingsComponent: node?.related?.settings,
       nodeName: node ? (node.data.custom.displayName || node.data.displayName || node.data.name) : null
     };
   });
+
 
   return (
     <div className="h-full bg-gray-900">

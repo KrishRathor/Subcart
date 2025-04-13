@@ -1,26 +1,23 @@
-// src/components/editor/user/UserImage.tsx
 import React, { CSSProperties } from 'react';
 import { useNode } from "@craftjs/core";
 import { SettingsInput } from '../SettingsInput';
 import { SettingsSelect } from '../SettingsSelect';
 
-// Define props for the image component
 interface UserImageProps {
   src?: string;
   alt?: string;
-  width?: number | string; // Allow number (px) or string (e.g., '100%')
+  width?: number | string;
   height?: number | string;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   alignment?: 'left' | 'center' | 'right';
   margin?: number;
 }
 
-// The Image component
 export const UserImage = ({
-  src = "https://via.placeholder.com/150", // Default placeholder
+  src = "https://via.placeholder.com/150", 
   alt = "Placeholder Image",
-  width = '100%', // Default to full width of container
-  height = 'auto', // Default to auto height
+  width = '100%', 
+  height = 'auto',
   objectFit = 'cover',
   alignment = 'left',
   margin = 5,
@@ -28,45 +25,42 @@ export const UserImage = ({
 
   const { connectors: { connect, drag } } = useNode();
 
-  // Calculate margin classes based on alignment
-  let alignmentClasses = 'justify-start'; // Default left
+  let alignmentClasses = 'justify-start'; 
   if (alignment === 'center') {
     alignmentClasses = 'justify-center';
   } else if (alignment === 'right') {
     alignmentClasses = 'justify-end';
   }
 
-  // Prepare width/height styles (handle number vs string)
   const sizeStyle: CSSProperties = {
     width: typeof width === 'number' ? `${width}px` : width,
     height: typeof height === 'number' ? `${height}px` : height,
   };
 
   return (
-    // Wrapper div handles alignment and connects to Craft.js
     <div
       ref={(ref: HTMLDivElement | null) => {
         ref && connect(drag(ref))
       }}
-      className={`flex ${alignmentClasses}`} // Use inline-block for margin auto to work
-      style={{ ...sizeStyle, margin: `${margin}px` }} // Apply size and margin
+      className={`flex ${alignmentClasses}`} 
+      style={{ ...sizeStyle, margin: `${margin}px` }}
     >
       <img
         src={src}
         alt={alt}
         style={{
-          display: 'block', // Prevent extra space below image
-          width: '100%',    // Image fills the wrapper width
-          height: '100%',   // Image fills the wrapper height
+          display: 'block',
+          width: '100%',  
+          height: '100%',
           objectFit: objectFit,
           cursor: 'move',
         }}
-      />
+      >
+      </img>
     </div>
   );
 };
 
-// Settings UI for the UserImage
 const UserImageSettings = () => {
   const { actions: { setProp }, props } = useNode((node) => ({
     props: node.data.props as UserImageProps,
@@ -85,12 +79,12 @@ const UserImageSettings = () => {
         onChange={(value) => setProp((props: UserImageProps) => props.alt = value)}
       />
       <SettingsInput
-        label="Width (px or %)" // Allow units like %, auto
+        label="Width (px or %)" 
         value={props.width ?? '100%'}
         onChange={(value) => setProp((props: UserImageProps) => props.width = value)}
       />
       <SettingsInput
-        label="Height (px or %)" // Allow units like px, %, auto
+        label="Height (px or %)"
         value={props.height ?? 'auto'}
         onChange={(value) => setProp((props: UserImageProps) => props.height = value)}
       />
@@ -119,7 +113,6 @@ const UserImageSettings = () => {
   );
 };
 
-// Assign static properties
 UserImage.craft = {
   props: {
     src: "https://placehold.co/200x200",

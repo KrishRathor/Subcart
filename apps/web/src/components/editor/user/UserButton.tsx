@@ -1,5 +1,5 @@
 import { useNode } from "@craftjs/core";
-import { SettingsInput } from "../SettingsInput"; 
+import { SettingsInput } from "../SettingsInput";
 import { SettingsSelect } from "../SettingsSelect";
 
 interface UserButtonProps {
@@ -9,7 +9,9 @@ interface UserButtonProps {
   color?: string;
   paddingX?: number;
   paddingY?: number;
-  margin?: number; 
+  margin?: number;
+  height?: number;
+  width?: number
 }
 
 export const UserButton = ({
@@ -20,6 +22,8 @@ export const UserButton = ({
   paddingX = 15,
   paddingY = 10,
   margin = 5,
+  height = 40,
+  width = 100
 }: UserButtonProps) => {
 
   const { connectors: { connect, drag } } = useNode();
@@ -50,7 +54,9 @@ export const UserButton = ({
           borderRadius: '5px',
           cursor: 'move',
           fontSize: '14px',
-          display: 'block'
+          display: 'block',
+          height: `${height}px`,
+          width: `${width}px`
         }}
       >
         {text}
@@ -88,7 +94,7 @@ const UserButtonSettings = () => {
         onChange={(value) => setProp((props: UserButtonProps) => props.background = value)}
       />
       <SettingsInput
-        label="Text Color"
+        label=""
         type="color"
         value={props.color || '#ffffff'}
         onChange={(value) => setProp((props: UserButtonProps) => props.color = value)}
@@ -104,6 +110,18 @@ const UserButtonSettings = () => {
         type="number"
         value={props.paddingY ?? 10}
         onChange={(value) => setProp((props: UserButtonProps) => props.paddingY = parseInt(value, 10))}
+      />
+      <SettingsInput
+        label="Height (px)"
+        type="number"
+        value={props.height ?? 40} // Use ?? for default number
+        onChange={(value) => setProp((props: UserButtonProps) => props.height = parseInt(value, 10))}
+      />
+      <SettingsInput
+        label="Width (px)"
+        type="number"
+        value={props.width ?? 100} // Use ?? for default number
+        onChange={(value) => setProp((props: UserButtonProps) => props.width = parseInt(value, 10))}
       />
       <SettingsInput
         label="Margin (px)"
@@ -124,6 +142,8 @@ UserButton.craft = {
     paddingX: 15,
     paddingY: 10,
     margin: 5,
+    height: 40,
+    width: 100
   } as UserButtonProps,
   related: {
     settings: UserButtonSettings

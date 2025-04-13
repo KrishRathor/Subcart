@@ -4,14 +4,14 @@ import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; /
 
 import { UserButton } from "./user/UserButton";
 import { UserText } from "./user/UserText";
-import { UserContainer } from "./user/UserContainer";
+import { Container } from "./user/UserContainer";
 import { UserImage } from "./user/UserImage";
 import { UserColumn } from './user/UserColumn';
 
 const categories = [
   {
     id: 'layout', name: 'Layout', tools: [
-      { id: 'container', name: 'Container', component: <Element is={UserContainer} canvas /> },
+      { id: 'container', name: 'Container', component: <Element is={Container} canvas /> },
       { id: 'lay', name: 'Lay', component: <Element is={UserColumn} canvas /> }
     ]
   },
