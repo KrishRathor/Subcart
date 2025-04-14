@@ -1,64 +1,90 @@
 import { useNode } from "@craftjs/core";
-import { SettingsInput } from "../SettingsInput";
-import { SettingsSelect } from "../SettingsSelect";
+import type { CSSProperties } from 'react';
+import { SettingsInput } from '../SettingsInput';
+import { SettingsSelect } from '../SettingsSelect';
+
+type ButtonSize = 'small' | 'medium' | 'large';
+type Alignment = 'left' | 'center' | 'right';
 
 interface UserButtonProps {
   text?: string;
-  alignment?: 'left' | 'center' | 'right';
-  background?: string;
-  color?: string;
-  paddingX?: number;
-  paddingY?: number;
-  margin?: number;
-  height?: number;
-  width?: number
+  alignment?: Alignment;
+  background?: string; // Can accept CSS variables like var(--primary-color)
+  color?: string;      // Can accept CSS variables like var(--text-on-primary)
+  size?: ButtonSize;
+  width?: string | number; // Allows 'auto', '100%', '300px' etc.
+  height?: string | number;
+  marginTop?: number; // Keep margins in px for simple spacing control
+  marginBottom?: number;
 }
 
 export const UserButton = ({
   text = "Button Text",
-  alignment = 'left',
-  background = "#6D28D9",
-  color = "#ffffff",
-  paddingX = 15,
-  paddingY = 10,
-  margin = 5,
-  height = 40,
-  width = 100
+  alignment = 'center',
+  background = "var(--button-primary-bg, #6D28D9)",
+  color = "var(--button-primary-color, #ffffff)",
+  size = 'medium',
+  width = 'auto',
+  height = 'auto',
+  marginTop = 5,
+  marginBottom = 5,
 }: UserButtonProps) => {
 
-  const { connectors: { connect, drag } } = useNode();
+  const { connectors: { connect, drag }, isSelected } = useNode(state => ({
+    isSelected: state.events.selected,
+  }));
 
-  let alignmentClasses = 'justify-start';
+  let justifyContent = 'flex-start';
   if (alignment === 'center') {
-    alignmentClasses = 'justify-center';
+    justifyContent = 'center';
   } else if (alignment === 'right') {
-    alignmentClasses = 'justify-end';
+    justifyContent = 'flex-end';
   }
 
-  console.log(alignmentClasses);
+  const wrapperStyle: CSSProperties = {
+    display: 'flex',
+    justifyContent: justifyContent,
+    marginTop: `${marginTop}px`,
+    marginBottom: `${marginBottom}px`,
+    width: '100%', // Wrapper takes full width to allow justify-*
+    outline: isSelected ? '2px dashed var(--editor-highlight-color, #6D28D9)' : 'none',
+    outlineOffset: '2px',
+  };
+
+  // --- Map semantic size to fluid REM units (using CSS vars conceptually) ---
+  // Assumes variables like --button-padding-x-medium, --button-font-size-medium
+  // might be defined in global CSS, provides fallbacks.
+  const paddingVarX = `var(--button-padding-x-${size}, ${size === 'small' ? '1rem' : size === 'large' ? '1.5rem' : '1.25rem'})`;
+  const paddingVarY = `var(--button-padding-y-${size}, ${size === 'small' ? '0.5rem' : size === 'large' ? '0.75rem' : '0.625rem'})`;
+  const fontSizeVar = `var(--button-font-size-${size}, ${size === 'small' ? '0.875rem' : size === 'large' ? '1.125rem' : '1rem'})`;
+  // --- End Size Mapping ---
+
+  const buttonStyle: CSSProperties = {
+    paddingTop: paddingVarY,
+    paddingBottom: paddingVarY,
+    paddingLeft: paddingVarX,
+    paddingRight: paddingVarX,
+    backgroundColor: background,
+    color: color,
+    border: 'none',
+    borderRadius: 'var(--button-border-radius, 6px)', // Use variable or fallback
+    cursor: 'move',
+    fontSize: fontSizeVar, // Use fluid unit
+    lineHeight: '1.5', // Relative line height often works well
+    width: typeof width === 'number' ? `${width}px` : width, // Allow fixed px or strings like 'auto', '100%'
+    height: typeof height === 'number' ? `${height}px` : height,
+    display: 'inline-block', // Let button size based on content + padding
+    textAlign: 'center',
+    transition: 'background-color 0.15s ease-in-out',
+    whiteSpace: 'nowrap',
+  };
 
   return (
     <div
-      ref={(ref: HTMLDivElement | null) => {
-        ref && connect(drag(ref))
-      }}
-      className={`flex ${alignmentClasses}`}
-      style={{ margin: `${margin}px` }}
+      ref={(ref: HTMLDivElement | null) => { ref && connect(drag(ref)) }}
+      style={wrapperStyle}
     >
-      <button
-        style={{
-          padding: `${paddingY}px ${paddingX}px`,
-          backgroundColor: background,
-          color: color,
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'move',
-          fontSize: '14px',
-          display: 'block',
-          height: `${height}px`,
-          width: `${width}px`
-        }}
-      >
+      <button style={buttonStyle}>
         {text}
       </button>
     </div>
@@ -67,68 +93,86 @@ export const UserButton = ({
 
 const UserButtonSettings = () => {
   const { actions: { setProp }, props } = useNode((node) => ({
-    props: node.data.props as UserButtonProps,
+    props: node.data.props as Required<UserButtonProps>,
   }));
+
+  const debounceTime = 300;
 
   return (
     <div className="space-y-3 p-4">
       <SettingsInput
-        label="Button Text"
-        value={props.text || ''}
-        onChange={(value) => setProp((props: UserButtonProps) => props.text = value)}
+        label="Text"
+        value={props.text} // Use default from props if defined
+        onChange={value => setProp((props: UserButtonProps) => props.text = value, debounceTime)}
       />
       <SettingsSelect
-        label="Alignment"
-        options={[
-          { value: 'left', label: 'Left' },
-          { value: 'center', label: 'Center' },
-          { value: 'right', label: 'Right' },
-        ]}
-        value={props.alignment || 'left'}
-        onChange={(value) => setProp((props: UserButtonProps) => props.alignment = value as any)}
+        label="Size"
+        value={props.size}
+        options={[{ value: 'small', label: 'Small' }, { value: 'medium', label: 'Medium' }, { value: 'large', label: 'Large' }]}
+        onChange={value => setProp((props: UserButtonProps) => props.size = value as ButtonSize, debounceTime)}
+      />
+      <SettingsSelect
+        label="Alignment (Block)"
+        value={props.alignment}
+        options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }, { value: 'right', label: 'Right' }]}
+        onChange={value => setProp((props: UserButtonProps) => props.alignment = value as Alignment, debounceTime)}
       />
       <SettingsInput
-        label="Background Color"
-        type="color" // Basic color picker
-        value={props.background || '#6D28D9'}
-        onChange={(value) => setProp((props: UserButtonProps) => props.background = value)}
+        label="Background"
+        type="text" // Allow color or CSS variable
+        value={props.background}
+        onChange={value => setProp((props: UserButtonProps) => props.background = value, debounceTime)}
       />
       <SettingsInput
-        label=""
-        type="color"
-        value={props.color || '#ffffff'}
-        onChange={(value) => setProp((props: UserButtonProps) => props.color = value)}
+        label="Text Color"
+        type="text" // Allow color or CSS variable
+        value={props.color}
+        onChange={value => setProp((props: UserButtonProps) => props.color = value, debounceTime)}
       />
-      <SettingsInput
-        label="Padding X (px)"
-        type="number"
-        value={props.paddingX ?? 15} // Use ?? for default number
-        onChange={(value) => setProp((props: UserButtonProps) => props.paddingX = parseInt(value, 10))}
-      />
-      <SettingsInput
-        label="Padding Y (px)"
-        type="number"
-        value={props.paddingY ?? 10}
-        onChange={(value) => setProp((props: UserButtonProps) => props.paddingY = parseInt(value, 10))}
-      />
-      <SettingsInput
-        label="Height (px)"
-        type="number"
-        value={props.height ?? 40} // Use ?? for default number
-        onChange={(value) => setProp((props: UserButtonProps) => props.height = parseInt(value, 10))}
-      />
-      <SettingsInput
-        label="Width (px)"
-        type="number"
-        value={props.width ?? 100} // Use ?? for default number
-        onChange={(value) => setProp((props: UserButtonProps) => props.width = parseInt(value, 10))}
-      />
-      <SettingsInput
-        label="Margin (px)"
-        type="number"
-        value={props.margin ?? 5}
-        onChange={(value) => setProp((props: UserButtonProps) => props.margin = parseInt(value, 10))}
-      />
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-700/50">
+        <SettingsInput
+          label="Width (px, %, auto)"
+          type="text"
+          value={props.width}
+          onChange={value => {
+            const finalValue = String(value).toLowerCase() === 'auto' || value === ''
+              ? 'auto'
+              : String(value); // Keep numbers or % as string for CSS
+            setProp((props: UserButtonProps) => props.width = finalValue, debounceTime);
+          }}
+        />
+        <SettingsInput
+          label="Height (px, %, auto)"
+          type="text"
+          value={props.height}
+          onChange={value => {
+            const finalValue = String(value).toLowerCase() === 'auto' || value === ''
+              ? 'auto'
+              : String(value); // Keep numbers or % as string for CSS
+            setProp((props: UserButtonProps) => props.height = finalValue, debounceTime);
+          }}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-700/50">
+        <SettingsInput
+          label="Margin Top (px)"
+          type="number"
+          value={props.marginTop}
+          onChange={value => {
+            const num = parseInt(value || '0', 10);
+            setProp((props: UserButtonProps) => props.marginTop = isNaN(num) ? props.marginTop : num, debounceTime);
+          }}
+        />
+        <SettingsInput
+          label="Margin Bottom (px)"
+          type="number"
+          value={props.marginBottom}
+          onChange={value => {
+            const num = parseInt(value || '0', 10);
+            setProp((props: UserButtonProps) => props.marginBottom = isNaN(num) ? props.marginBottom : num, debounceTime);
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -136,14 +180,14 @@ const UserButtonSettings = () => {
 UserButton.craft = {
   props: {
     text: "Click Me",
-    alignment: "left",
-    background: "#6D28D9",
-    color: "#ffffff",
-    paddingX: 15,
-    paddingY: 10,
-    margin: 5,
-    height: 40,
-    width: 100
+    alignment: "center",
+    background: "var(--button-primary-bg, #6D28D9)",
+    color: "var(--button-primary-color, #ffffff)",
+    size: 'medium',
+    width: 'auto',
+    height: 'auto',
+    marginTop: 5,
+    marginBottom: 5,
   } as UserButtonProps,
   related: {
     settings: UserButtonSettings

@@ -22,9 +22,8 @@ export const SettingsPanel = () => {
     };
   });
 
-
   return (
-    <div className="h-full bg-gray-900">
+    <div className="h-full bg-gray-950">
       <h3 className="text-sm font-semibold text-gray-400 mb-0 uppercase tracking-wider px-4 pt-4 pb-3 border-b border-gray-800">
         {nodeName ? `${nodeName} Settings` : 'Settings'}
       </h3>
